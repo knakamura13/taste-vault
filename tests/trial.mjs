@@ -136,6 +136,28 @@ try {
    await page.waitForURL(base+savedPath);
    assert.equal(await page.locator('[name="notes"]').inputValue(),'Draft notes after failure');
 
+   // Save the corrected edit, then rediscover it from a clean browser session.
+   const rediscoveryNote = 'Rediscovery note ' + randomUUID();
+   await page.locator('[name="sourceUrl"]').fill('https://example.com/');
+   await page.locator('[name="notes"]').fill(rediscoveryNote);
+   await page.getByRole('button', {name:'Save changes'}).click();
+   await page.getByRole('status').filter({hasText:'Reference saved.'}).waitFor();
+   const freshSession = await browser.newContext();
+   try {
+    const freshPage = await freshSession.newPage();
+    await freshPage.goto(base+'/');
+    await freshPage.locator('[name="q"]').fill(rediscoveryNote);
+    await freshPage.getByRole('button', {name:'Apply',exact:true}).click();
+    await freshPage.waitForURL(url => url.searchParams.get('q') === rediscoveryNote);
+    assert.equal(await freshPage.locator('.gallery article').count(),1);
+    await freshPage.getByRole('link',{name:'Lost response batch'}).click();
+    await freshPage.waitForURL(url => url.pathname === savedPath);
+    assert.equal(await freshPage.locator('[name="notes"]').inputValue(),rediscoveryNote);
+    await freshPage.locator('.image-stack img').evaluate(image => image.decode());
+   } finally {
+    await freshSession.close();
+   }
+
    const queuedRef = (await db.query("SELECT ref_id FROM capture_jobs WHERE status='queued' ORDER BY created_at LIMIT 1")).rows[0].ref_id;
    await page.goto(base+'/references/REF-'+String(queuedRef).padStart(6,'0'));
    await page.getByRole('status').filter({hasText:'Capture: queued'}).waitFor();
