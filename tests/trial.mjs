@@ -93,5 +93,24 @@ try {
    await browser.close();
   }
  }
+ // A saved page may become invalid after a reference is removed.
+ await db.query("INSERT INTO refs(title) SELECT 'Pagination regression ' || n FROM generate_series(1,61) n");
+ const gallery = (path) => fetch(base + path, {redirect:'manual'});
+ let paged = await gallery('/?q=Pagination%20regression&page=2&sort=oldest');
+ assert.equal(paged.status,200);
+ assert.match(await paged.text(), /61 references/);
+ await db.query("UPDATE refs SET trashed_at=now() WHERE id=(SELECT max(id) FROM refs WHERE title LIKE 'Pagination regression %')");
+ paged = await gallery('/?q=Pagination%20regression&page=2&sort=oldest');
+ assert.equal(paged.status,302);
+ let location = new URL(paged.headers.get('location'), base);
+ assert.equal(location.searchParams.get('q'),'Pagination regression');
+ assert.equal(location.searchParams.get('sort'),'oldest');
+ assert.equal(location.searchParams.has('page'),false);
+ const recoveredGallery = await gallery(location.pathname + location.search);
+ assert.match(await recoveredGallery.text(), /60 references/);
+ const emptyPage = await gallery('/?q=NoMatchingPaginationRef&page=9');
+ assert.equal(emptyPage.status,302);
+ assert.equal(new URL(emptyPage.headers.get('location'),base).searchParams.has('page'),false);
+ await db.query("DELETE FROM refs WHERE title LIKE 'Pagination regression %'");
  console.log('Trial integration passed: grouped intake, duplicate detection, image retrieval, project isolation, repo linking, pins, and trash exclusion.');
 } finally { server.kill(); await db.end(); await rm(temp,{recursive:true,force:true}); }
