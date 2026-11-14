@@ -94,12 +94,61 @@ try {
    await page.getByRole('button', {name:'Save references'}).click();
    await page.getByRole('heading', {name:'Recovered screenshot'}).waitFor();
 
+   // Let the server commit, then drop the enhanced form response.
+   await page.goto(base+'/references/new');
+   await page.locator('[name="title"]').fill('Lost response batch');
+   await page.locator('[name="notes"]').fill('Keep the submitted metadata');
+   await page.locator('[name="confirmDuplicate"]').check();
+   await page.locator('input[type="file"]').setInputFiles({name:'lost.png',mimeType:'image/png',buffer:png});
+   await page.route('**/references/new', async route => {
+    if (route.request().method() === 'POST') {
+     await route.fetch({maxRedirects:0});
+     await route.abort();
+    } else await route.continue();
+   }, {times:1});
+   await page.getByRole('button', {name:'Save references'}).click();
+   await page.getByRole('button', {name:'Check saved batch'}).click();
+   const saved = page.getByRole('link', {name:'Open saved batch'});
+   await saved.waitFor();
+   const savedPath = await saved.getAttribute('href');
+   assert.equal((await db.query("SELECT count(*)::int n FROM refs WHERE title='Lost response batch'")).rows[0].n,1);
+   await saved.click();
+   await page.waitForURL(base+savedPath);
+   await page.getByRole('heading', {name:'Lost response batch'}).waitFor();
+   await page.locator('[name="notes"]').fill('Draft notes after failure');
+   await page.locator('[name="sourceUrl"]').fill('ftp://example.com/');
+   assert.equal(await page.locator('[name="sourceUrl"]').inputValue(),'ftp://example.com/');
+   const submittedEdit = page.waitForRequest(request => request.method() === 'POST' && request.url().includes('?/save'));
+   await page.getByRole('button', {name:'Save changes'}).click();
+   assert.equal(new URLSearchParams((await submittedEdit).postData()).get('sourceUrl'),'ftp://example.com/');
+   await page.getByRole('alert').filter({hasText:'Enter a valid HTTP(S) URL.'}).waitFor({timeout:10000});
+   assert.equal(await page.locator('[name="notes"]').inputValue(),'Draft notes after failure');
+   await page.getByRole('link', {name:'← All references'}).click();
+   await page.waitForURL(base+'/');
+   await page.goBack();
+   await page.waitForURL(base+savedPath);
+   assert.equal(await page.locator('[name="notes"]').inputValue(),'Draft notes after failure');
+
    const queuedRef = (await db.query("SELECT ref_id FROM capture_jobs WHERE status='queued' ORDER BY created_at LIMIT 1")).rows[0].ref_id;
    await page.goto(base+'/references/REF-'+String(queuedRef).padStart(6,'0'));
    await page.getByRole('status').filter({hasText:'Capture: queued'}).waitFor();
    await db.query("UPDATE capture_jobs SET status='failed', error='Test capture failure' WHERE ref_id=$1", [queuedRef]);
    await page.getByRole('status').filter({hasText:'Test capture failure'}).waitFor();
    assert.equal(await page.getByRole('button', {name:'Retry capture'}).isVisible(), true);
+   await db.query("INSERT INTO refs(title) SELECT 'Selection trial ' || n FROM generate_series(1,61) n");
+   await page.goto(base+'/?q=Selection%20trial');
+   await page.locator('.gallery input[type="checkbox"]').first().check();
+   await page.getByRole('link', {name:'Next',exact:true}).click();
+   await page.waitForURL(url => url.searchParams.get('page') === '2');
+   await page.locator('.gallery input[type="checkbox"]').first().check();
+   await page.getByRole('button', {name:'Copy 2 selected IDs'}).waitFor();
+   await page.locator('.gallery article a').first().click();
+   await page.waitForURL(url => url.pathname.startsWith('/references/'));
+   await page.getByRole('link', {name:'← All references'}).click();
+   await page.waitForURL(url => url.searchParams.get('page') === '2');
+   await page.getByRole('button', {name:'Copy 2 selected IDs'}).waitFor();
+   await page.getByRole('button', {name:'Clear selection'}).click();
+   await db.query("DELETE FROM refs WHERE title LIKE 'Selection trial %'");
    await page.goto(base+'/?project='+a.toUpperCase()+'&category='+category.toUpperCase());
    assert.equal(await page.locator('[name="project"]').inputValue(),a);
    assert.equal(await page.locator('[name="category"]').inputValue(),category);

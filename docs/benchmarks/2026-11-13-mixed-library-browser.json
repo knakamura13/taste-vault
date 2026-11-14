@@ -1,0 +1,460 @@
+{
+  "fixtureSource": "User-supplied temporary Alarm UI PNGs",
+  "sourceCount": 132,
+  "fixtureCount": 2376,
+  "metadataCount": 50000,
+  "browser": "157.0.8103.52",
+  "node": "v26.13.1",
+  "architecture": "arm64",
+  "rounds": [
+    {
+      "current": {
+        "cold": [
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 630,
+            "serverResponseMs": 43,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 627,
+            "serverResponseMs": 90,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 624,
+            "serverResponseMs": 129,
+            "visibleEncodedBytes": 89386
+          }
+        ],
+        "warm": [
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 156,
+            "serverResponseMs": 35,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 143,
+            "serverResponseMs": 29,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 138,
+            "serverResponseMs": 37,
+            "visibleEncodedBytes": 89386
+          }
+        ],
+        "search": {
+          "visiblePreviews": 18,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 414,
+          "serverResponseMs": 363,
+          "visibleEncodedBytes": 101662
+        },
+        "mobile": {
+          "visiblePreviews": 3,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 72,
+          "serverResponseMs": 23,
+          "visibleEncodedBytes": 15386,
+          "scrollMs": 78,
+          "nextPageMs": 119,
+          "originalMs": 119,
+          "originalEncodedBytes": 474821,
+          "backMs": 33
+        },
+        "narrow": {
+          "visiblePreviews": 3,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 68,
+          "serverResponseMs": 27,
+          "visibleEncodedBytes": 15386
+        },
+        "project": {
+          "visiblePreviews": 18,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 165,
+          "serverResponseMs": 54,
+          "visibleEncodedBytes": 93928,
+          "scrollMs": 235,
+          "nextPageMs": 123,
+          "originalMs": 106,
+          "originalEncodedBytes": 1438067,
+          "backMs": 86
+        }
+      }
+    },
+    {
+      "current": {
+        "cold": [
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 455,
+            "serverResponseMs": 41,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 451,
+            "serverResponseMs": 36,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 448,
+            "serverResponseMs": 35,
+            "visibleEncodedBytes": 89386
+          }
+        ],
+        "warm": [
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 145,
+            "serverResponseMs": 20,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 158,
+            "serverResponseMs": 73,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 138,
+            "serverResponseMs": 22,
+            "visibleEncodedBytes": 89386
+          }
+        ],
+        "search": {
+          "visiblePreviews": 18,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 335,
+          "serverResponseMs": 276,
+          "visibleEncodedBytes": 101662
+        },
+        "mobile": {
+          "visiblePreviews": 3,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 64,
+          "serverResponseMs": 26,
+          "visibleEncodedBytes": 15386,
+          "scrollMs": 67,
+          "nextPageMs": 149,
+          "originalMs": 220,
+          "originalEncodedBytes": 474821,
+          "backMs": 81
+        },
+        "narrow": {
+          "visiblePreviews": 3,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 65,
+          "serverResponseMs": 23,
+          "visibleEncodedBytes": 15386
+        },
+        "project": {
+          "visiblePreviews": 18,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 154,
+          "serverResponseMs": 36,
+          "visibleEncodedBytes": 93928,
+          "scrollMs": 336,
+          "nextPageMs": 139,
+          "originalMs": 126,
+          "originalEncodedBytes": 1438067,
+          "backMs": 34
+        }
+      }
+    },
+    {
+      "current": {
+        "cold": [
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 388,
+            "serverResponseMs": 29,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 386,
+            "serverResponseMs": 29,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 366,
+            "serverResponseMs": 18,
+            "visibleEncodedBytes": 89386
+          }
+        ],
+        "warm": [
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 149,
+            "serverResponseMs": 35,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 142,
+            "serverResponseMs": 27,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 136,
+            "serverResponseMs": 22,
+            "visibleEncodedBytes": 89386
+          }
+        ],
+        "search": {
+          "visiblePreviews": 18,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 262,
+          "serverResponseMs": 207,
+          "visibleEncodedBytes": 101662
+        },
+        "mobile": {
+          "visiblePreviews": 3,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 51,
+          "serverResponseMs": 14,
+          "visibleEncodedBytes": 15386,
+          "scrollMs": 56,
+          "nextPageMs": 109,
+          "originalMs": 107,
+          "originalEncodedBytes": 474821,
+          "backMs": 27
+        },
+        "narrow": {
+          "visiblePreviews": 3,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 66,
+          "serverResponseMs": 24,
+          "visibleEncodedBytes": 15386
+        },
+        "project": {
+          "visiblePreviews": 18,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 173,
+          "serverResponseMs": 62,
+          "visibleEncodedBytes": 93928,
+          "scrollMs": 276,
+          "nextPageMs": 113,
+          "originalMs": 113,
+          "originalEncodedBytes": 1438067,
+          "backMs": 46
+        }
+      }
+    },
+    {
+      "current": {
+        "cold": [
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 472,
+            "serverResponseMs": 22,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 466,
+            "serverResponseMs": 25,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 459,
+            "serverResponseMs": 21,
+            "visibleEncodedBytes": 89386
+          }
+        ],
+        "warm": [
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 173,
+            "serverResponseMs": 27,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 169,
+            "serverResponseMs": 24,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 166,
+            "serverResponseMs": 26,
+            "visibleEncodedBytes": 89386
+          }
+        ],
+        "search": {
+          "visiblePreviews": 18,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 217,
+          "serverResponseMs": 166,
+          "visibleEncodedBytes": 101662
+        },
+        "mobile": {
+          "visiblePreviews": 3,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 66,
+          "serverResponseMs": 25,
+          "visibleEncodedBytes": 15386,
+          "scrollMs": 56,
+          "nextPageMs": 118,
+          "originalMs": 110,
+          "originalEncodedBytes": 474821,
+          "backMs": 80
+        },
+        "narrow": {
+          "visiblePreviews": 3,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 65,
+          "serverResponseMs": 22,
+          "visibleEncodedBytes": 15386
+        },
+        "project": {
+          "visiblePreviews": 18,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 156,
+          "serverResponseMs": 21,
+          "visibleEncodedBytes": 93928,
+          "scrollMs": 294,
+          "nextPageMs": 432,
+          "originalMs": 106,
+          "originalEncodedBytes": 1438067,
+          "backMs": 81
+        }
+      }
+    },
+    {
+      "current": {
+        "cold": [
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 365,
+            "serverResponseMs": 27,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 358,
+            "serverResponseMs": 23,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 356,
+            "serverResponseMs": 21,
+            "visibleEncodedBytes": 89386
+          }
+        ],
+        "warm": [
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 142,
+            "serverResponseMs": 36,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 138,
+            "serverResponseMs": 23,
+            "visibleEncodedBytes": 89386
+          },
+          {
+            "visiblePreviews": 18,
+            "horizontalOverflow": false,
+            "visibleDecodedMs": 132,
+            "serverResponseMs": 19,
+            "visibleEncodedBytes": 89386
+          }
+        ],
+        "search": {
+          "visiblePreviews": 18,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 305,
+          "serverResponseMs": 241,
+          "visibleEncodedBytes": 101662
+        },
+        "mobile": {
+          "visiblePreviews": 3,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 70,
+          "serverResponseMs": 25,
+          "visibleEncodedBytes": 15386,
+          "scrollMs": 50,
+          "nextPageMs": 114,
+          "originalMs": 70,
+          "originalEncodedBytes": 474821,
+          "backMs": 32
+        },
+        "narrow": {
+          "visiblePreviews": 3,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 63,
+          "serverResponseMs": 22,
+          "visibleEncodedBytes": 15386
+        },
+        "project": {
+          "visiblePreviews": 18,
+          "horizontalOverflow": false,
+          "visibleDecodedMs": 123,
+          "serverResponseMs": 28,
+          "visibleEncodedBytes": 93928,
+          "scrollMs": 231,
+          "nextPageMs": 94,
+          "originalMs": 108,
+          "originalEncodedBytes": 1438067,
+          "backMs": 45
+        }
+      }
+    }
+  ],
+  "fixtureSummary": {
+    "groupedReferences": 238,
+    "bytes": 2037099017,
+    "portrait": 1350,
+    "landscape": 1026,
+    "maxWidth": 5120,
+    "maxHeight": 7600,
+    "largestPNGBytes": 13971630
+  }
+}

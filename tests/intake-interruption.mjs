@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { once } from 'node:events';
 import http from 'node:http';
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
@@ -21,7 +22,8 @@ async function start() {
 }
 async function stop(signal = 'SIGTERM') { if (server && server.exitCode === null && server.signalCode === null) { const closed = once(server, 'close'); server.kill(signal); await closed; } }
 const png = await sharp({ create: { width: 50, height: 50, channels: 3, background: '#112233' } }).png().toBuffer();
-const upload = async () => { const form = new FormData(); form.append('screenshots', new Blob([png]), 'restart.png'); return fetch(base+'/references/new', { method: 'POST', headers: { origin: base, accept: 'text/html' }, body: form, redirect: 'manual' }); };
+const receipt = randomUUID();
+const upload = async (key = receipt) => { const form = new FormData(); if (key) form.set('receipt', key); form.append('screenshots', new Blob([png]), 'restart.png'); return fetch(base+'/references/new', { method: 'POST', headers: { origin: base, accept: 'text/html' }, body: form, redirect: 'manual' }); };
 try {
  assert.equal((await db.query('SELECT 1 FROM refs')).rowCount, 0);
  await start();
@@ -48,11 +50,22 @@ try {
  assert.equal((await db.query('SELECT 1 FROM refs')).rowCount, 0);
  await start();
  assert.deepEqual(await readdir(TASTE_STORAGE_DIR), [], 'Restart removes rolled-back image files');
- assert.equal((await upload()).status, 303);
+ assert.equal((await fetch(base+'/references/new/receipt/'+receipt)).status,404);
+ const responses = await Promise.all([upload(), upload()]);
+ assert.deepEqual(responses.map(response => response.status), [303, 303]);
+ assert.equal(responses[0].headers.get('location'), responses[1].headers.get('location'));
+ assert.equal((await db.query('SELECT count(*)::int n FROM screenshots')).rows[0].n,1);
  const saved = (await db.query('SELECT storage_key FROM screenshots')).rows[0];
  await stop('SIGKILL'); await start();
  assert.deepEqual(await readFile(join(TASTE_STORAGE_DIR, saved.storage_key)), png);
- assert.equal((await upload()).status, 409, 'Retry after a committed response was lost must warn about duplicates');
+ const status = await fetch(base + '/references/new/receipt/' + receipt);
+ assert.equal(status.status, 200);
+ const {referenceId} = await status.json();
+ const retry = await upload();
+ assert.equal(retry.status, 303);
+ assert.equal(retry.headers.get('location'), '/references/' + referenceId);
+ assert.equal((await db.query('SELECT count(*)::int n FROM refs')).rows[0].n, 1);
+ assert.equal((await upload('')).status, 409, 'A separate submission still warns about duplicates');
  const lock = await db.connect();
  let recovery;
  try {

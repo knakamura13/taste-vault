@@ -43,3 +43,23 @@ The baseline is the application before changing UUID filter columns from text co
 Project search and project API round medians improved in all five rounds. Ranges overlap and there is substantial host variation. This supports a local improvement for this sparse-membership workload, not a general or hosted latency guarantee. The main correctness change also accepts uppercase UUID filters consistently; integration tests verify that behavior and project isolation. Counts, assignments and SQL fixtures are identical between builds. Timings include network stack, SQL, SSR/JSON serialization and response reading; SQL scans, host load, and localhost overhead limit the result. No extension or schema migration is needed.
 
 Run `node tests/large-library.mjs` with an empty migrated `taste_large_bench_<suffix>` database, `DATABASE_URL`, and `TASTE_BASELINE_BUILD` pointing to a separate runnable adapter-node build. The current build must already exist. The harness inserts metadata fixtures and leaves the disposable database populated. It does not exercise image delivery, browser rendering, concurrent requests, real-user sessions, or WAN/hosted resource limits.
+
+## Mixed library browser baseline
+
+Set `TASTE_EXTENDED_GALLERY=1` and supply the temporary PNG directory to the gallery harness. The run recorded in `2026-11-13-mixed-library-browser.json` combined 50,000 metadata references with 2,376 image-backed references derived from 132 PNGs. There were 238 references with a second image. The dense project has 27,376 references and the sparse project has 119. Most variants are capped at 1,600 pixels wide to bound storage, with the newest 60 kept at their scaled size. The harness checks result counts, image decoding, failed requests, and horizontal overflow.
+
+Five rounds ran on a local arm64 Mac with Docker PostgreSQL 17, Node 26.13.1 and Chrome 157. Each desktop cold/warm opening had three concurrent fresh browser contexts per round. Phone-width and sparse-project journeys ran sequentially. Cold clears the server thumbnail cache, while warm uses the populated server cache and fresh browser contexts. The sparse project starts with a mix of generated and missing thumbnail files. The Chrome and PostgreSQL processes ran on the same machine. The tests exercised a built application and full browser navigation over localhost.
+
+| Browser action | Median (range) | Samples |
+| --- | ---: | ---: |
+| Desktop first visible previews, cold | 451 ms (356–630) | 15 |
+| Desktop first visible previews, warm | 143 ms (132–173) | 15 |
+| Search to visible previews | 305 ms (217–414) | 5 |
+| 390px first visible previews | 66 ms (51–72) | 5 |
+| 390px scroll to last preview | 56 ms (50–78) | 5 |
+| 390px next page to first preview | 118 ms (109–149) | 5 |
+| 390px open original | 110 ms (70–220) | 5 |
+| 390px Back to gallery | 33 ms (27–81) | 5 |
+| Sparse project scroll to last preview | 276 ms (231–336) | 5 |
+
+Desktop first visible previews totaled about 89 KB encoded. The original opened in the sparse-project journey was about 1.44 MB. All recorded requests and visible image decodes succeeded. This is a single-build baseline with overlapping host activity during the run. It leaves peak CPU/RSS, physical phones, WAN, and Railway limits unmeasured. The sparse-project scroll and search are candidates for profiling in the next comparison.
