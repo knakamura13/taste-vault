@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import { capturePage } from '../scripts/capture-flow.js';
+const ok={status:()=>200,ok:()=>true};
+const live={goto:async()=>ok,screenshot:async()=>Buffer.from('image')};
+assert.equal((await capturePage(live,'https://example.com/')).kind,'live');
+let calls=0;
+const archived={goto:async()=>{calls++;if(calls===1)throw Error('offline');return ok;},locator:()=>({innerText:async()=>JSON.stringify({archived_snapshots:{closest:{available:true,url:'https://web.archive.org/web/20200101000000/https://example.com/',timestamp:'20200101000000'}}})}),screenshot:async()=>Buffer.from('archive')};
+const result=await capturePage(archived,'https://example.com/');assert.equal(result.kind,'wayback');assert.equal(result.archiveTimestamp,'20200101000000');assert.match(result.pageUrl,/web.archive.org/);
+const failed={goto:async()=>{throw Error('offline');}};await assert.rejects(()=>capturePage(failed,'https://example.com/'),/Live capture failed/);
+console.log('Live, archive fallback, and failed capture flow passed.');

@@ -1,4 +1,6 @@
+<script>let { data, form } = $props();</script>
 <svelte:head><title>Projects · Taste Vault</title></svelte:head>
-
-<h1>Projects</h1>
-<p>Project management and archiving will be available here.</p>
+<div class="page-heading"><div><p class="eyebrow">Your library</p><h1>Projects</h1><p>Keep references together for the work they inspire.</p></div></div>
+{#if form?.error}<p class="error" role="alert">{form.error}</p>{/if}
+<form method="POST" action="?/create" class="inline-form"><label class="sr-only" for="new-project">Project name</label><input id="new-project" name="name" placeholder="New project name" required maxlength="120"><button>Create project</button></form>
+<div class="management-list">{#each data.projects as project}<div class="management-row"><form method="POST" action="?/rename" class="inline-form"><input type="hidden" name="id" value={project.id}><label class="sr-only" for={'project-'+project.id}>Project name</label><input id={'project-'+project.id} name="name" value={project.name} required maxlength="120"><button class="secondary">Rename</button></form><span>{project.archived_at ? 'Archived' : ''}</span><form method="POST" action="?/archive"><input type="hidden" name="id" value={project.id}><button class="text-button">{project.archived_at ? 'Unarchive' : 'Archive'}</button></form></div>{:else}<p class="empty">No projects yet. Create one to organize your references.</p>{/each}</div>

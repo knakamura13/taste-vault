@@ -1,4 +1,3 @@
-<svelte:head><title>Trash · Taste Vault</title></svelte:head>
-
-<h1>Trash</h1>
-<p>Reference restore and permanent deletion will be available here.</p>
+<script>let { data } = $props();</script>
+<svelte:head><title>Trash · Taste Vault</title></svelte:head><div class="page-heading"><div><p class="eyebrow">Your library</p><h1>Trash</h1><p>Restore a reference or permanently delete it and its screenshots.</p></div></div>
+<div class="management-list">{#each data.refs as ref}<div class="management-row"><div><strong>{ref.title}</strong><div class="muted">{ref.reference_id}</div></div><form method="POST" action="?/restore"><input type="hidden" name="id" value={ref.reference_id}><button class="secondary">Restore</button></form><form method="POST" action="?/delete" onsubmit={(event)=>{if(!confirm('Permanently delete this reference and its screenshots?')) event.preventDefault();}}><input type="hidden" name="id" value={ref.reference_id}><input type="hidden" name="confirm" value="delete"><button class="danger">Delete permanently</button></form></div>{:else}<p class="empty">Trash is empty.</p>{/each}</div>

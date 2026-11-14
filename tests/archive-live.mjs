@@ -1,0 +1,6 @@
+// Optional network smoke test: force live navigation failure, then use a real Wayback snapshot.
+import { chromium } from 'playwright-core';
+import { createPublicProxy } from '../scripts/public-proxy.js';
+import { capturePage } from '../scripts/capture-flow.js';
+const proxy=await createPublicProxy(); let browser;
+try {const executablePath=process.env.CHROME_PATH||(process.platform==='darwin'?'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome':'/usr/bin/chromium');browser=await chromium.launch({executablePath,headless:true,proxy:{server:`http://127.0.0.1:${proxy.port}`,bypass:'<-loopback>'},args:['--disable-quic','--force-webrtc-ip-handling-policy=disable_non_proxied_udp']});const page=await browser.newPage({serviceWorkers:'block'});page.setDefaultNavigationTimeout(20000);let first=true;const wrapped={goto:async (...args)=>{if(first){first=false;throw Error('Simulated live outage');}return page.goto(...args);},locator:(...args)=>page.locator(...args),screenshot:(...args)=>page.screenshot(...args)};const capture=await capturePage(wrapped,'https://example.com/');if(capture.kind!=='wayback')throw Error('Expected Wayback capture');console.log(`Archive replay captured: ${capture.archiveTimestamp}, ${capture.bytes.length} bytes`);}finally{if(browser)await browser.close();await new Promise(resolve=>proxy.server.close(resolve));}
