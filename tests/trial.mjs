@@ -36,6 +36,13 @@ try {
  const category=(await db.query("SELECT id FROM categories WHERE name='Motion'")).rows[0].id;
  assert.equal((await post('/references/'+pin[0].id+'?/save',{title:'Edited clock',notes:'test note',tags:'motion',projects:a,categories:category})).status,200);
  let api=await (await fetch(base+'/api/v1/references?project='+a+'&q=motion')).json(); assert.equal(api.references[0].title,'Edited clock');
+ const upperScoped=await fetch(base+'/api/v1/references?project='+a.toUpperCase()+'&q=motion');
+ assert.equal(upperScoped.status,200);
+ assert.equal((await upperScoped.json()).references[0].title,'Edited clock');
+ const upperGallery=await fetch(base+'/?project='+a.toUpperCase()+'&category='+category.toUpperCase());
+ assert.equal(upperGallery.status,200);
+ assert.match(await upperGallery.text(),/1 references/);
+
  assert.equal((await fetch(base+'/api/v1/references?project='+b+'&q=motion').then(r=>r.json())).references.length,0);
  const apiRef=await (await fetch(base+'/api/v1/references/'+pin[0].id)).json(); assert.equal(apiRef.title,'Edited clock');
  assert.equal((await fetch(base+apiRef.screenshots[0].url)).status,200);
@@ -93,6 +100,10 @@ try {
    await db.query("UPDATE capture_jobs SET status='failed', error='Test capture failure' WHERE ref_id=$1", [queuedRef]);
    await page.getByRole('status').filter({hasText:'Test capture failure'}).waitFor();
    assert.equal(await page.getByRole('button', {name:'Retry capture'}).isVisible(), true);
+   await page.goto(base+'/?project='+a.toUpperCase()+'&category='+category.toUpperCase());
+   assert.equal(await page.locator('[name="project"]').inputValue(),a);
+   assert.equal(await page.locator('[name="category"]').inputValue(),category);
+
   } finally {
    await browser.close();
   }

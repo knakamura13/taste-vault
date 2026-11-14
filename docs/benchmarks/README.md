@@ -25,3 +25,21 @@ Set `TASTE_FIXTURE_DIR` to a local directory of PNGs to use supplied images inst
 The supplied Alarm UI run uses 132 source PNGs and 396 derived references. Cold/warm desktop cases each use three concurrent fresh browser contexts per round; mobile and narrow checks are sequential with warm server thumbnails. Five rounds run on localhost. This is a current-build baseline, not a before/after speedup comparison or mobile-device hardware measurement.
 
 Results in `2026-11-13-alarm-gallery.json`: 541,865,034 encoded fixture bytes, dimensions up to 6000px wide and 7600px high. Navigation-to-visible-preview-decode medians (ranges) were 377 ms (301–511) cold desktop, 124 ms (102–145) warm desktop, 64 ms (58–70) search, 56 ms (48–63) at 390px, and 50 ms (47–60) at 320px. All requests and visible image decodes succeeded, with no detected horizontal overflow. Desktop and 390px screenshots were also visually inspected. Phone-width runs use desktop Chrome hardware and warm thumbnails, so their timings are not real-phone performance evidence.
+
+## Large-library typed-filter comparison
+
+`2026-11-13-large-filters.json` records five alternating baseline/current rounds on the local arm64 Mac and Docker PostgreSQL 17. The library has 50,000 references, 500 projects, 100 categories, one project/category assignment per reference, and 50,000 approved screenshot description rows. Image files are deliberately absent; the harness fetches full HTML/JSON responses without requesting image bytes. Each case has three warmups and ten sequential timed requests per build per round (50 measured responses per arm). Every response must be 200 with the expected result count. No failures were excluded.
+
+The baseline is the application before changing UUID filter columns from text comparisons to typed UUID comparisons. Both builds share the same database. Project-gallery/search cases match 100 references, category gallery 500, API page 25, and API no-match zero. Rounded navigation/request start to full-response read measurements:
+
+| Case | Baseline median (range) | Typed filter median (range) |
+| --- | ---: | ---: |
+| Project gallery | 25 ms (20–74) | 20 ms (16–50) |
+| Category gallery | 23 ms (19–38) | 20 ms (16–43) |
+| Project gallery with search | 186 ms (125–469) | 125 ms (114–258) |
+| Project API page | 16 ms (11–44) | 9 ms (7–46) |
+| Project API no-match | 26 ms (19–76) | 23 ms (15–72) |
+
+Project search and project API round medians improved in all five rounds. Ranges overlap and there is substantial host variation. This supports a local improvement for this sparse-membership workload, not a general or hosted latency guarantee. The main correctness change also accepts uppercase UUID filters consistently; integration tests verify that behavior and project isolation. Counts, assignments and SQL fixtures are identical between builds. Timings include network stack, SQL, SSR/JSON serialization and response reading; SQL scans, host load, and localhost overhead limit the result. No extension or schema migration is needed.
+
+Run `node tests/large-library.mjs` with an empty migrated `taste_large_bench_<suffix>` database, `DATABASE_URL`, and `TASTE_BASELINE_BUILD` pointing to a separate runnable adapter-node build. The current build must already exist. The harness inserts metadata fixtures and leaves the disposable database populated. It does not exercise image delivery, browser rendering, concurrent requests, real-user sessions, or WAN/hosted resource limits.
