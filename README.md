@@ -59,6 +59,8 @@ cp -R .taste-vault/images /path/to/backup/images
 
 Restore the dump into a **new empty database** with `pg_restore`, restore the matching image directory, and set `DATABASE_URL` and `TASTE_STORAGE_DIR`. PostgreSQL dumps include the reference sequence state. Run `npm run db:migrate` to apply migrations added since the backup, then verify the images and IDs before allowing writes. Keep the dump and images from the same paused snapshot.
 
+For an isolated restore rehearsal, run `node tests/restore-check.mjs` with the source `DATABASE_URL` and `TASTE_STORAGE_DIR`, plus `RESTORED_DATABASE_URL` and `RESTORED_STORAGE_DIR`. Use a disposable restore database whose name starts with `taste_` and contains `restore`. The verifier compares the full vault records and image hashes and consumes one ID on the restored sequence to verify its next value. Then run `node tests/restore-readback.mjs` with the restored database and image directory as `DATABASE_URL` and `TASTE_STORAGE_DIR` to check original and thumbnail delivery across two app starts.
+
 ## Tests
 
 `npm run check` and `npm run build` validate the build. The integration scripts under `tests/` require a **disposable**, migrated PostgreSQL database. Set `DATABASE_URL` to that database and `TASTE_STORAGE_DIR` to a disposable directory before running them. `npm run test:trial`, `npm run test:auth`, and `npm run test:capture` exercise the main workflows; the capture test also requires Chrome and external network access. `node tests/capture-flow.mjs` exercises fallback logic without network access. See [the performance baseline](docs/benchmarks/README.md) for its scope and limits.

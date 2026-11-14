@@ -1,0 +1,476 @@
+{
+  "referenceFixture": 52376,
+  "loadRuns": [
+    {
+      "population": 52376,
+      "inputBytes": 24964953,
+      "browser": "157.0.8103.52",
+      "node": "v26.13.1",
+      "architecture": "arm64",
+      "rounds": [
+        {
+          "quiet": [
+            {
+              "firstPreviewMs": 569,
+              "nextPageMs": 188,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 207,
+              "nextPageMs": 295,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 213,
+              "nextPageMs": 177,
+              "captureRunning": false,
+              "intakeRunning": false
+            }
+          ],
+          "busy": [
+            {
+              "firstPreviewMs": 209,
+              "nextPageMs": 267,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 627,
+              "nextPageMs": 210,
+              "captureRunning": true,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 170,
+              "nextPageMs": 179,
+              "captureRunning": true,
+              "intakeRunning": false
+            }
+          ]
+        },
+        {
+          "busy": [
+            {
+              "firstPreviewMs": 234,
+              "nextPageMs": 220,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 263,
+              "nextPageMs": 183,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 163,
+              "nextPageMs": 181,
+              "captureRunning": true,
+              "intakeRunning": false
+            }
+          ],
+          "quiet": [
+            {
+              "firstPreviewMs": 191,
+              "nextPageMs": 191,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 161,
+              "nextPageMs": 188,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 169,
+              "nextPageMs": 180,
+              "captureRunning": false,
+              "intakeRunning": false
+            }
+          ]
+        },
+        {
+          "quiet": [
+            {
+              "firstPreviewMs": 163,
+              "nextPageMs": 180,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 170,
+              "nextPageMs": 186,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 169,
+              "nextPageMs": 175,
+              "captureRunning": false,
+              "intakeRunning": false
+            }
+          ],
+          "busy": [
+            {
+              "firstPreviewMs": 226,
+              "nextPageMs": 252,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 169,
+              "nextPageMs": 170,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 169,
+              "nextPageMs": 179,
+              "captureRunning": true,
+              "intakeRunning": false
+            }
+          ]
+        },
+        {
+          "busy": [
+            {
+              "firstPreviewMs": 190,
+              "nextPageMs": 286,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 207,
+              "nextPageMs": 213,
+              "captureRunning": true,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 262,
+              "nextPageMs": 194,
+              "captureRunning": true,
+              "intakeRunning": false
+            }
+          ],
+          "quiet": [
+            {
+              "firstPreviewMs": 221,
+              "nextPageMs": 206,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 175,
+              "nextPageMs": 187,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 178,
+              "nextPageMs": 227,
+              "captureRunning": false,
+              "intakeRunning": false
+            }
+          ]
+        },
+        {
+          "quiet": [
+            {
+              "firstPreviewMs": 210,
+              "nextPageMs": 189,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 187,
+              "nextPageMs": 187,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 183,
+              "nextPageMs": 184,
+              "captureRunning": false,
+              "intakeRunning": false
+            }
+          ],
+          "busy": [
+            {
+              "firstPreviewMs": 222,
+              "nextPageMs": 196,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 167,
+              "nextPageMs": 198,
+              "captureRunning": true,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 181,
+              "nextPageMs": 182,
+              "captureRunning": true,
+              "intakeRunning": false
+            }
+          ]
+        }
+      ],
+      "restartAndRepeatCapture": "passed",
+      "failedRequests": 0
+    },
+    {
+      "population": 52376,
+      "inputBytes": 24964953,
+      "browser": "157.0.8103.52",
+      "node": "v26.13.1",
+      "architecture": "arm64",
+      "rounds": [
+        {
+          "quiet": [
+            {
+              "firstPreviewMs": 311,
+              "nextPageMs": 257,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 229,
+              "nextPageMs": 165,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 169,
+              "nextPageMs": 227,
+              "captureRunning": false,
+              "intakeRunning": false
+            }
+          ],
+          "busy": [
+            {
+              "firstPreviewMs": 364,
+              "nextPageMs": 368,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 266,
+              "nextPageMs": 169,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 204,
+              "nextPageMs": 188,
+              "captureRunning": true,
+              "intakeRunning": false
+            }
+          ]
+        },
+        {
+          "busy": [
+            {
+              "firstPreviewMs": 208,
+              "nextPageMs": 258,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 243,
+              "nextPageMs": 180,
+              "captureRunning": true,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 169,
+              "nextPageMs": 202,
+              "captureRunning": true,
+              "intakeRunning": false
+            }
+          ],
+          "quiet": [
+            {
+              "firstPreviewMs": 193,
+              "nextPageMs": 299,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 238,
+              "nextPageMs": 245,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 295,
+              "nextPageMs": 295,
+              "captureRunning": false,
+              "intakeRunning": false
+            }
+          ]
+        },
+        {
+          "quiet": [
+            {
+              "firstPreviewMs": 196,
+              "nextPageMs": 294,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 236,
+              "nextPageMs": 267,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 351,
+              "nextPageMs": 203,
+              "captureRunning": false,
+              "intakeRunning": false
+            }
+          ],
+          "busy": [
+            {
+              "firstPreviewMs": 364,
+              "nextPageMs": 339,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 326,
+              "nextPageMs": 255,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 199,
+              "nextPageMs": 222,
+              "captureRunning": false,
+              "intakeRunning": false
+            }
+          ]
+        },
+        {
+          "busy": [
+            {
+              "firstPreviewMs": 408,
+              "nextPageMs": 267,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 313,
+              "nextPageMs": 260,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 220,
+              "nextPageMs": 237,
+              "captureRunning": true,
+              "intakeRunning": false
+            }
+          ],
+          "quiet": [
+            {
+              "firstPreviewMs": 308,
+              "nextPageMs": 256,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 226,
+              "nextPageMs": 228,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 267,
+              "nextPageMs": 236,
+              "captureRunning": false,
+              "intakeRunning": false
+            }
+          ]
+        },
+        {
+          "quiet": [
+            {
+              "firstPreviewMs": 221,
+              "nextPageMs": 184,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 195,
+              "nextPageMs": 221,
+              "captureRunning": false,
+              "intakeRunning": false
+            },
+            {
+              "firstPreviewMs": 202,
+              "nextPageMs": 196,
+              "captureRunning": false,
+              "intakeRunning": false
+            }
+          ],
+          "busy": [
+            {
+              "firstPreviewMs": 370,
+              "nextPageMs": 262,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 362,
+              "nextPageMs": 270,
+              "captureRunning": true,
+              "intakeRunning": true
+            },
+            {
+              "firstPreviewMs": 233,
+              "nextPageMs": 225,
+              "captureRunning": false,
+              "intakeRunning": false
+            }
+          ]
+        }
+      ],
+      "restartAndRepeatCapture": "passed",
+      "manualCaptureRecovery": "passed using a simulated failure",
+      "failedRequests": 0
+    }
+  ],
+  "restore": {
+    "counts": {
+      "refs": 52398,
+      "projects": 2,
+      "categories": 1,
+      "ref_projects": 27495,
+      "ref_categories": 5,
+      "screenshots": 2671,
+      "capture_jobs": 18,
+      "intake_receipts": 5,
+      "schema_migrations": 5
+    },
+    "matchingImageHashes": 2671,
+    "nextReferenceNumber": "52399"
+  },
+  "restoredAppReadback": {
+    "imageKinds": [
+      "live",
+      "upload"
+    ],
+    "samplesPerStart": 2,
+    "appStarts": 2,
+    "verified": [
+      "reference IDs",
+      "original image hashes",
+      "thumbnail delivery"
+    ]
+  }
+}
