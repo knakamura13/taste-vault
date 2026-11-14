@@ -100,6 +100,10 @@ try {
    await db.query("UPDATE capture_jobs SET status='failed', error='Test capture failure' WHERE ref_id=$1", [queuedRef]);
    await page.getByRole('status').filter({hasText:'Test capture failure'}).waitFor();
    assert.equal(await page.getByRole('button', {name:'Retry capture'}).isVisible(), true);
+   await page.goto(base+'/?project='+a.toUpperCase()+'&category='+category.toUpperCase());
+   assert.equal(await page.locator('[name="project"]').inputValue(),a);
+   assert.equal(await page.locator('[name="category"]').inputValue(),category);
+
   } finally {
    await browser.close();
   }

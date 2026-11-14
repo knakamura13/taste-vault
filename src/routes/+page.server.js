@@ -3,7 +3,7 @@ import { pool, projects, formatId } from '#lib/server/db.js';
 import { categories } from '#lib/server/manage.js';
 export async function load({url}) {
  const page=Number(url.searchParams.get('page')||'1'); if(!Number.isSafeInteger(page)||page<1||page>100000) error(400,'Invalid page');
- const q=url.searchParams.get('q')||'', project=url.searchParams.get('project')||'', category=url.searchParams.get('category')||'', sort=url.searchParams.get('sort')||'newest';
+ const q=url.searchParams.get('q')||'', project=(url.searchParams.get('project')||'').toLowerCase(), category=(url.searchParams.get('category')||'').toLowerCase(), sort=url.searchParams.get('sort')||'newest';
  const valid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  if((project && project!=='unassigned' && !valid.test(project)) || (category && !valid.test(category))) error(400,'Invalid filter');
  const order=sort==='oldest'?'r.id ASC':sort==='title'?'r.title ASC, r.id DESC':'r.id DESC';
