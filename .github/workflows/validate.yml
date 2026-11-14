@@ -1,0 +1,61 @@
+name: Validate application
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: validation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  application:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: taste
+          POSTGRES_PASSWORD: taste
+          POSTGRES_DB: taste_ci_trial
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U taste -d taste_ci_trial"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://taste:taste@127.0.0.1:5432/taste_ci_trial
+      TASTE_STORAGE_DIR: /tmp/taste-ci-trial-images
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+      - name: Find runner Chrome
+        run: echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+      - run: npm run db:migrate
+      - name: Browser integration
+        run: npm run test:trial
+      - run: npm run test:auth
+      - name: Capture fallback logic
+        run: node tests/capture-flow.mjs
+      - name: Prepare isolated interruption database
+        run: |
+          node --input-type=module - <<'JS'
+          import pg from 'pg';
+          const db = new pg.Client({ connectionString: process.env.DATABASE_URL });
+          await db.connect();
+          await db.query('CREATE DATABASE taste_interrupt_test_ci');
+          await db.end();
+          JS
+      - name: Forced interruption and restart recovery
+        env:
+          DATABASE_URL: postgresql://taste:taste@127.0.0.1:5432/taste_interrupt_test_ci
+          TASTE_STORAGE_DIR: ${{ runner.temp }}/taste-interruption-images
+        run: |
+          npm run db:migrate
+          npm run test:interruption
