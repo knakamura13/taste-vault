@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { pool, storageRoot } from '#lib/server/db.js';
+import { pool, storageRoot, isUuid } from '#lib/server/db.js';
 import { mkdir, readFile, writeFile, rename, unlink } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
@@ -35,19 +35,20 @@ async function readOrCreatePreview(path, storageKey) {
 }
 
 export async function GET({ params }) {
- if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(params.id)) error(404);
+ if (!isUuid(params.id)) error(404);
+ const imageId = params.id.toLowerCase();
  const result = await pool.query(
   'SELECT s.storage_key FROM screenshots s JOIN refs r ON r.id=s.ref_id WHERE s.id=$1 AND r.trashed_at IS NULL',
-  [params.id]
+  [imageId]
  );
  if (!result.rowCount) error(404);
 
- let preview = pendingPreviews.get(params.id);
+ let preview = pendingPreviews.get(imageId);
  if (!preview) {
-  const path = join(previewDir, params.id + '.webp');
+  const path = join(previewDir, imageId + '.webp');
   preview = readOrCreatePreview(path, result.rows[0].storage_key)
-   .finally(() => pendingPreviews.delete(params.id));
-  pendingPreviews.set(params.id, preview);
+   .finally(() => pendingPreviews.delete(imageId));
+  pendingPreviews.set(imageId, preview);
  }
 
  let bytes;

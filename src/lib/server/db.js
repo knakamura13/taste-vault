@@ -4,6 +4,8 @@ const vaultRoot = resolve(process.env.TASTE_VAULT_ROOT || process.cwd());
 try { process.loadEnvFile(resolve(vaultRoot, '.env')); } catch (e) { if (/** @type {NodeJS.ErrnoException} */ (e).code !== 'ENOENT') throw e; }
 export const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL || 'postgresql://taste:taste@127.0.0.1:5432/taste_vault' });
 export const storageRoot = resolve(vaultRoot, process.env.TASTE_STORAGE_DIR || '.taste-vault/images');
+/** @param {string} value */
+export const isUuid = value => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 /** @param {string | number} id */
 export const formatId = (id) => `REF-${String(id).padStart(6, '0')}`;
 /** @param {string} id */

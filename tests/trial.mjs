@@ -27,6 +27,10 @@ try {
  const pin=run('pin',scoped[1].id); assert.equal(pin[0].images.length,2);
  const image=await fetch(base+'/assets/'+pin[0].images[0].id); assert.equal(image.status,200); assert.deepEqual(Buffer.from(await image.arrayBuffer()),png); assert.equal((await fetch(base+'/assets/'+pin[0].images[0].id+'/thumbnail')).status,200);
  execFileSync(process.execPath,[script,'link',a],{cwd:temp,env,stdio:'ignore'}); assert.deepEqual(run('search').map(x=>x.title),['General reference','Alarm clock']);
+ const upperImage = pin[0].images[0].id.toUpperCase();
+ assert.equal((await fetch(base+'/assets/'+upperImage)).status,200);
+ assert.equal((await fetch(base+'/assets/'+upperImage+'/thumbnail')).status,200);
+ assert.equal((await fetch(base+'/api/v1/references/'+pin[0].id+'/screenshots/'+upperImage)).status,200);
  const post=async (path,values)=>fetch(base+path,{method:'POST',headers:{origin:base,accept:'text/html'},body:new URLSearchParams(values),redirect:'manual'});
  assert.equal((await post('/categories?/create',{name:'Motion'})).status,200);
  const category=(await db.query("SELECT id FROM categories WHERE name='Motion'")).rows[0].id;
