@@ -47,6 +47,13 @@ try {
  const apiRef=await (await fetch(base+'/api/v1/references/'+pin[0].id)).json(); assert.equal(apiRef.title,'Edited clock');
  assert.equal((await fetch(base+apiRef.screenshots[0].url)).status,200);
  assert.equal((await fetch(base+apiRef.screenshots[0].url+'/description',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({description:'Approved phrase',approved:true})})).status,200);
+ await db.query("UPDATE screenshots SET description = 'Unapproved browser phrase' WHERE id=$1",[apiRef.screenshots[1].id]);
+ for (const [query, count] of [['approved phrase', 1], ['Motion', 1], ['Unapproved browser phrase', 0], ['test note motion', 1]]) {
+  const search = await fetch(base+'/?q='+encodeURIComponent(query));
+  assert.equal(search.status,200);
+  assert.match(await search.text(), new RegExp('>'+count+' references<'));
+ }
+
  assert.equal((await fetch(base+'/api/v1/references?project='+a+'&q=Approved%20phrase').then(r=>r.json())).references.length,1);
  assert.equal((await post('/references/'+pin[0].id+'?/trash',{})).status,303); assert.deepEqual(run('search','--project',a).map(x=>x.title),['General reference']);
  assert.equal((await fetch(base+'/api/v1/references/'+pin[0].id)).status,404);
