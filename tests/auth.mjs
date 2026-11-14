@@ -10,5 +10,11 @@ try {for(let i=0;i<100;i++){try{await fetch(base);break;}catch{await new Promise
  const path=base+'/api/v1/references/REF-000001/screenshots/00000000-0000-0000-0000-000000000000/description';
  const req=token=>fetch(path,{method:'PUT',headers:{authorization:'Bearer '+token,'content-type':'application/json'},body:JSON.stringify({description:'test',approved:true})});
  assert.equal((await req('test-read-token')).status,401);assert.equal((await req('test-write-token')).status,404);
+ const webAuth='Basic '+Buffer.from('taste:test-web-secret').toString('base64');
+ const malformedId='-'.repeat(36);
+ assert.equal((await fetch(base+'/assets/'+malformedId,{headers:{authorization:webAuth}})).status,404);
+ const invalidBody=await fetch(path,{method:'PUT',headers:{authorization:'Bearer test-write-token','content-type':'application/json'},body:'null'});
+ assert.equal(invalidBody.status,400);
+ assert.equal((await invalidBody.json()).error.code,'invalid_body');
  console.log('Web and separate API read/write credentials passed.');
 } finally {server.kill();}
