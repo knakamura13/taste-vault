@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: taste
+      POSTGRES_PASSWORD: taste
+      POSTGRES_DB: taste_vault
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - taste-db:/var/lib/postgresql/data
+volumes:
+  taste-db:

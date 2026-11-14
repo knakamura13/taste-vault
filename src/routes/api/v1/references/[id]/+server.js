@@ -1,0 +1,3 @@
+import { json } from '@sveltejs/kit';
+import { reference } from '#lib/server/manage.js';
+export async function GET({params}) {const ref=await reference(params.id);if(!ref)return json({error:{code:'not_found',message:'Reference missing or in Trash.'}},{status:404});return json({id:ref.reference_id,title:ref.title,sourceUrl:ref.source_url,notes:ref.notes,tags:ref.tags,projectIds:ref.project_ids,categoryIds:ref.category_ids,screenshots:ref.screenshots.map(/** @param {{id:string,filename:string,description:string|null}} s */ s=>({id:s.id,filename:s.filename,description:s.description,url:`/api/v1/references/${ref.reference_id}/screenshots/${s.id}`}))});}
