@@ -81,3 +81,20 @@ Two batches of five alternating runs per build used the same 52,376 references, 
 | Desktop warm gallery | 151 ms (122–197) | 159 ms (100–249) | 30 |
 
 Search response start improved in all ten pairs; previews improved in nine. In the exception the response started at 38 ms but decoding finished at 279 ms, so the delay occurred after response start. Its specific cause was unmeasured. Cold and warm gallery counts, thumbnail bytes, and encoding were common between builds. Their timings varied in both directions between batches, and the scrolling ranges overlap. The measurements support a broad-search improvement for this local workload. Search still scans reference text, and image decoding can dominate the remaining browser time. Hosted load, resource usage and dense category/description assignments were outside this comparison.
+
+## Browsing during capture and intake
+
+Two local Chrome 157 runs used isolated copies of the 52,376-reference mixed library with Node 26.13.1 and PostgreSQL 17 on the same arm64 Mac. Each run alternated five quiet and busy pairs. Each arm per pair opened the sparse project dashboard search three times and advanced to page two. Timing starts before navigation and ends when the first image decodes. A warmup visited the same pages, and the browser context and server thumbnail cache were reused. Each busy arm queued three distinct example.com URLs and submitted eight screenshots totaling 24,964,953 bytes. The harness sampled whether a job was running and whether the upload was still pending immediately before each browser navigation.
+
+| Run and action | Quiet median (range) | Busy median (range) |
+| --- | ---: | ---: |
+| Run 1, first preview | 183 ms (161–569) | 207 ms (163–627) |
+| Run 1, page two preview | 187 ms (175–295) | 196 ms (170–286) |
+| Run 2, first preview | 229 ms (169–351) | 266 ms (169–408) |
+| Run 2, page two preview | 236 ms (165–299) | 255 ms (169–368) |
+
+Each cell represents 15 visits. Capture was running at navigation start for 28 of 30 busy visits and intake was pending for 16. Both runs showed higher busy medians with overlapping ranges. These data describe the tested workload with one browser session, one capture worker and one upload at a time. They do not quantify peak resource use or Railway performance. All expected responses and image decodes passed. Browser-generated navigation cancellations were excluded from request failure tracking.
+
+Both runs recovered a claimed job after killing the worker. A subsequent retry completed with one screenshot on that reference. The second run also verified manual screenshot recovery after an injected capture failure. It used the current migrations and included category memberships and upload receipts in the restore. Raw measurements and restore counts are in `2026-11-13-busy-library.json`.
+
+To reproduce, clone a populated disposable extended-gallery database into a new `taste_gallery_bench_busy<suffix>` database, migrate it, and copy its image directory to a fresh location. Run `node tests/busy-library.mjs` after building with `DATABASE_URL`, `TASTE_STORAGE_DIR`, and `CHROME_PATH` set. This run adds references and contacts example.com with the real capture worker.
