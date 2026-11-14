@@ -63,3 +63,21 @@ Five rounds ran on a local arm64 Mac with Docker PostgreSQL 17, Node 26.13.1 and
 | Sparse project scroll to last preview | 276 ms (231–336) | 5 |
 
 Desktop first visible previews totaled about 89 KB encoded. The original opened in the sparse-project journey was about 1.44 MB. All recorded requests and visible image decodes succeeded. This is a single-build baseline with overlapping host activity during the run. It leaves peak CPU/RSS, physical phones, WAN, and Railway limits unmeasured. The sparse-project scroll and search are candidates for profiling in the next comparison.
+
+## Gallery search profile
+
+The mixed fixture library was reused on the same local machine for the baseline at `264a751` and the query change. Set `TASTE_REUSE_GALLERY=1` alongside the extended-mode inputs and point `TASTE_BASELINE_BUILD` at a runnable build from before the change. Each build gets the same cases and thumbnail-cache reset schedule. In the SQL plan for the broad dashboard query, the old search evaluated category and description aggregates once per reference. The revised query groups both sources by reference once and joins the results. Search semantics still join fields with spaces and match a case-insensitive substring. Category and approved-description matching are covered in the trial suite. The benchmark fixture has sparse related metadata, so use the result primarily for broad queries in that workload.
+
+An isolated encoder comparison on 40 fixture originals ran five alternating pairs with quality 75 and the same dimensions. WebP effort 4 took 748–835 ms per batch, while effort 2 took 689–828 ms. Total output increased from 232,456 to 242,148 bytes. The ranges overlap and browser scrolling remained variable, so the change retains the existing encoding settings.
+
+Two batches of five alternating runs per build used the same 52,376 references, 2,376 image-backed records, image files, and cache schedule. Each search checked the reference count, decoded 18 visible previews and transferred the same 101,662 encoded preview bytes. Counts, image decodes and requests passed in every run. The first batch overlapped briefly with the integration suite. The repeat ran separately. Raw data is in `2026-11-13-gallery-search-profile.json`.
+
+| Path | Baseline median (range) | Revised median (range) | Samples per build |
+| --- | ---: | ---: | ---: |
+| Broad search to visible previews | 330 ms (268–415) | 89 ms (80–279) | 10 |
+| Broad search to response start | 265 ms (219–351) | 38 ms (30–41) | 10 |
+| Sparse-project scroll to last preview | 266 ms (227–387) | 263 ms (236–378) | 10 |
+| Desktop cold gallery | 473 ms (384–599) | 449 ms (321–1,000) | 30 |
+| Desktop warm gallery | 151 ms (122–197) | 159 ms (100–249) | 30 |
+
+Search response start improved in all ten pairs; previews improved in nine. In the exception the response started at 38 ms but decoding finished at 279 ms, so the delay occurred after response start. Its specific cause was unmeasured. Cold and warm gallery counts, thumbnail bytes, and encoding were common between builds. Their timings varied in both directions between batches, and the scrolling ranges overlap. The measurements support a broad-search improvement for this local workload. Search still scans reference text, and image decoding can dominate the remaining browser time. Hosted load, resource usage and dense category/description assignments were outside this comparison.

@@ -13,7 +13,8 @@ const { DATABASE_URL, TASTE_STORAGE_DIR, CHROME_PATH } = process.env;
 assert.match(new URL(DATABASE_URL).pathname, /^\/taste_gallery_bench_[a-z0-9]+$/);
 assert.ok(TASTE_STORAGE_DIR && CHROME_PATH, 'Set disposable image storage and CHROME_PATH.');
 const db = new pg.Pool({ connectionString: DATABASE_URL });
-await mkdir(join(TASTE_STORAGE_DIR, 'gallery-fixtures'));
+const reuse = process.env.TASTE_REUSE_GALLERY === '1';
+if (!reuse) await mkdir(join(TASTE_STORAGE_DIR, 'gallery-fixtures'));
 const servers = [];
 let browser;
 const sourceDir = process.env.TASTE_FIXTURE_DIR;
@@ -25,49 +26,58 @@ const fixtureCount = sourceDir ? sources.length * (extended ? 18 : 3) : 180;
 const metadataCount = extended ? 50000 : 0;
 const totalCount = fixtureCount + metadataCount;
 const denseProject = randomUUID();
-const sparseProject = randomUUID();
+let sparseProject = randomUUID();
 const fixtures = [];
 
 
 try {
- const empty = await db.query('SELECT 1 FROM refs LIMIT 1');
- assert.equal(empty.rowCount, 0, 'The benchmark database must be empty.');
+ if (reuse) {
+  assert.ok(extended, 'Fixture reuse requires extended mode.');
+  const population = await db.query('SELECT count(*)::int AS total FROM refs');
+  assert.equal(population.rows[0].total, totalCount);
+  const project = await db.query("SELECT id FROM projects WHERE name='Sparse project'");
+  assert.equal(project.rowCount, 1);
+  sparseProject = project.rows[0].id;
+ } else {
+  const empty = await db.query('SELECT 1 FROM refs LIMIT 1');
+  assert.equal(empty.rowCount, 0, 'The benchmark database must be empty.');
 
- if (extended) {
-  await db.query("INSERT INTO projects(id,name) VALUES ($1,'Dense project'),($2,'Sparse project')", [denseProject,sparseProject]);
-  await db.query("INSERT INTO refs(title,notes) SELECT 'Metadata ' || n, 'Synthetic notes' FROM generate_series(1,$1) n", [metadataCount]);
-  await db.query("INSERT INTO ref_projects SELECT id,$1 FROM refs WHERE id%2=0", [denseProject]);
- }
- for (let n = 0; n < fixtureCount; n++) {
-  const imageId = randomUUID();
-  const key = 'gallery-fixtures/' + imageId + '.png';
-  const panels = Array.from({ length: 72 }, (_, i) =>
-   '<rect x="' + (48 + (i % 8) * 224) + '" y="' + (80 + Math.floor(i / 8) * 108) +
-   '" width="200" height="90" rx="8" fill="hsl(' + ((i * 23 + n * 11) % 360) + ', 40%, 75%)"/>'
-  ).join('');
-  const screenshot = '<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080">' +
-   '<rect width="100%" height="100%" fill="#fafafa"/>' + panels + '</svg>';
-  const source = sourceDir ? join(sourceDir, sources[n % sources.length]) : null;
-  const scale = sourceDir ? [0.5, 1, 2][Math.floor(n / sources.length) % 3] : 1;
-  const input = source ?? Buffer.from(screenshot);
-  const original = await sharp(input).metadata();
-  const width = Math.round(original.width * (extended && n < fixtureCount - 60 ? Math.min(scale, 1600 / original.width) : scale));
-  await sharp(input).resize({ width }).png().toFile(join(TASTE_STORAGE_DIR, key));
-  fixtures.push({ width, height: Math.round(original.height * width / original.width), scale,
-   bytes: (await stat(join(TASTE_STORAGE_DIR, key))).size });
-  const title = (n % 2 === 0 ? 'Dashboard' : 'Reference') + ' ' + n;
-  const ref = await db.query('INSERT INTO refs(title) VALUES ($1) RETURNING id', [title]);
-  await db.query(
-   "INSERT INTO screenshots(id,ref_id,storage_key,content_hash,media_type,filename) VALUES ($1,$2,$3,$4,'image/png','fixture.png')",
-   [imageId, ref.rows[0].id, key, imageId]
-  );
   if (extended) {
-   await db.query('INSERT INTO ref_projects VALUES ($1,$2)', [ref.rows[0].id, denseProject]);
-   if (n % 20 === 0) await db.query('INSERT INTO ref_projects VALUES ($1,$2)', [ref.rows[0].id, sparseProject]);
-   if (n % 10 === 0) await db.query(
-    "INSERT INTO screenshots(id,ref_id,storage_key,content_hash,media_type,filename) VALUES ($1,$2,$3,$4,'image/png','grouped.png')",
-    [randomUUID(),ref.rows[0].id,key.replace('.png','-grouped.png'),imageId]
-   ).then(() => copyFile(join(TASTE_STORAGE_DIR,key),join(TASTE_STORAGE_DIR,key.replace('.png','-grouped.png'))));
+   await db.query("INSERT INTO projects(id,name) VALUES ($1,'Dense project'),($2,'Sparse project')", [denseProject,sparseProject]);
+   await db.query("INSERT INTO refs(title,notes) SELECT 'Metadata ' || n, 'Synthetic notes' FROM generate_series(1,$1) n", [metadataCount]);
+   await db.query("INSERT INTO ref_projects SELECT id,$1 FROM refs WHERE id%2=0", [denseProject]);
+  }
+  for (let n = 0; n < fixtureCount; n++) {
+   const imageId = randomUUID();
+   const key = 'gallery-fixtures/' + imageId + '.png';
+   const panels = Array.from({ length: 72 }, (_, i) =>
+    '<rect x="' + (48 + (i % 8) * 224) + '" y="' + (80 + Math.floor(i / 8) * 108) +
+    '" width="200" height="90" rx="8" fill="hsl(' + ((i * 23 + n * 11) % 360) + ', 40%, 75%)"/>'
+   ).join('');
+   const screenshot = '<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080">' +
+    '<rect width="100%" height="100%" fill="#fafafa"/>' + panels + '</svg>';
+   const source = sourceDir ? join(sourceDir, sources[n % sources.length]) : null;
+   const scale = sourceDir ? [0.5, 1, 2][Math.floor(n / sources.length) % 3] : 1;
+   const input = source ?? Buffer.from(screenshot);
+   const original = await sharp(input).metadata();
+   const width = Math.round(original.width * (extended && n < fixtureCount - 60 ? Math.min(scale, 1600 / original.width) : scale));
+   await sharp(input).resize({ width }).png().toFile(join(TASTE_STORAGE_DIR, key));
+   fixtures.push({ width, height: Math.round(original.height * width / original.width), scale,
+    bytes: (await stat(join(TASTE_STORAGE_DIR, key))).size });
+   const title = (n % 2 === 0 ? 'Dashboard' : 'Reference') + ' ' + n;
+   const ref = await db.query('INSERT INTO refs(title) VALUES ($1) RETURNING id', [title]);
+   await db.query(
+    "INSERT INTO screenshots(id,ref_id,storage_key,content_hash,media_type,filename) VALUES ($1,$2,$3,$4,'image/png','fixture.png')",
+    [imageId, ref.rows[0].id, key, imageId]
+   );
+   if (extended) {
+    await db.query('INSERT INTO ref_projects VALUES ($1,$2)', [ref.rows[0].id, denseProject]);
+    if (n % 20 === 0) await db.query('INSERT INTO ref_projects VALUES ($1,$2)', [ref.rows[0].id, sparseProject]);
+    if (n % 10 === 0) await db.query(
+     "INSERT INTO screenshots(id,ref_id,storage_key,content_hash,media_type,filename) VALUES ($1,$2,$3,$4,'image/png','grouped.png')",
+     [randomUUID(),ref.rows[0].id,key.replace('.png','-grouped.png'),imageId]
+    ).then(() => copyFile(join(TASTE_STORAGE_DIR,key),join(TASTE_STORAGE_DIR,key.replace('.png','-grouped.png'))));
+   }
   }
  }
 
