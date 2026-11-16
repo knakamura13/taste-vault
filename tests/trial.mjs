@@ -183,17 +183,31 @@ try {
    await db.query("UPDATE capture_jobs SET status='failed', error='Test capture failure' WHERE ref_id=$1", [queuedRef]);
    await page.getByRole('status').filter({hasText:'Test capture failure'}).waitFor();
    assert.equal(await page.getByRole('button', {name:'Retry capture'}).isVisible(), true);
-   await db.query("INSERT INTO refs(title) SELECT 'Selection trial ' || n FROM generate_series(1,61) n");
-   await page.goto(base+'/?q=Selection%20trial');
+   await db.query(`
+    WITH fixtures AS (
+     INSERT INTO refs(title)
+     SELECT 'Selection trial ' || n FROM generate_series(1,61) n
+     RETURNING id
+    )
+    INSERT INTO ref_projects(ref_id,project_id) SELECT id,$1 FROM fixtures
+   `, [b]);
+   const selectionSearch = new URLSearchParams({q:'Selection trial',project:b});
+   await page.goto(base+'/?'+selectionSearch);
    await page.locator('.gallery input[type="checkbox"]').first().check();
    await page.getByRole('link', {name:'Next',exact:true}).click();
    await page.waitForURL(url => url.searchParams.get('page') === '2');
    await page.locator('.gallery input[type="checkbox"]').first().check();
    await page.getByRole('button', {name:'Copy 2 selected IDs'}).waitFor();
-   await page.locator('.gallery article a').first().click();
-   await page.waitForURL(url => url.pathname.startsWith('/references/'));
+   const pageTwoReference = page.locator('.gallery article a').first();
+   const referenceHref = await pageTwoReference.getAttribute('href');
+   await pageTwoReference.click();
+   await page.waitForURL(new URL(referenceHref, base).href);
    await page.getByRole('link', {name:'← All references'}).click();
-   await page.waitForURL(url => url.searchParams.get('page') === '2');
+   await page.waitForURL(url => url.pathname === '/' &&
+    url.searchParams.get('page') === '2' &&
+    url.searchParams.get('q') === 'Selection trial' &&
+    url.searchParams.get('project') === b);
+   assert.equal(await pageTwoReference.getAttribute('href'), referenceHref);
    await page.getByRole('button', {name:'Copy 2 selected IDs'}).waitFor();
    await page.getByRole('button', {name:'Clear selection'}).click();
    await db.query("DELETE FROM refs WHERE title LIKE 'Selection trial %'");
