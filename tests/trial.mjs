@@ -177,6 +177,12 @@ try {
    await page.goBack();
    await page.waitForURL(base+savedPath);
    assert.equal(await page.locator('[name="notes"]').inputValue(),'Draft notes after failure');
+   await page.getByText('Image description', {exact:true}).click();
+   await page.locator('[name="description"]').fill('Draft recovery trial description');
+   await page.getByRole('button', {name:'Save description',exact:true}).click();
+   await page.getByRole('status').filter({hasText:'Description saved.'}).waitFor();
+   assert.equal(await page.locator('[name="notes"]').inputValue(),'Draft notes after failure');
+   assert.equal(await page.locator('[name="sourceUrl"]').inputValue(),'ftp://example.com/');
 
    // Move the reference while correcting the edit, then verify both project scopes.
    const rediscoveryNote = 'Rediscovery note ' + randomUUID();
