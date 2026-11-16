@@ -102,8 +102,11 @@ try {
    await page.getByRole('heading', {name:'Recovered screenshot'}).waitFor();
 
    // Let the server commit, then drop the enhanced form response.
+   const destinationProject = randomUUID();
+   await db.query('INSERT INTO projects(id,name) VALUES ($1,$2)',[destinationProject,'Rediscovery destination']);
    await page.goto(base+'/references/new');
    await page.locator('[name="title"]').fill('Lost response batch');
+   await page.locator('[name="project"]').selectOption(b);
    await page.locator('[name="notes"]').fill('Keep the submitted metadata');
    await page.locator('[name="confirmDuplicate"]').check();
    await page.locator('input[type="file"]').setInputFiles({name:'lost.png',mimeType:'image/png',buffer:png});
@@ -136,10 +139,14 @@ try {
    await page.waitForURL(base+savedPath);
    assert.equal(await page.locator('[name="notes"]').inputValue(),'Draft notes after failure');
 
-   // Save the corrected edit, then rediscover it from a clean browser session.
+   // Move the reference while correcting the edit, then verify both project scopes.
    const rediscoveryNote = 'Rediscovery note ' + randomUUID();
    await page.locator('[name="sourceUrl"]').fill('https://example.com/');
    await page.locator('[name="notes"]').fill(rediscoveryNote);
+   const previousProject = page.locator(`[name="projects"][value="${b}"]`);
+   assert.equal(await previousProject.isChecked(),true);
+   await previousProject.uncheck();
+   await page.locator(`[name="projects"][value="${destinationProject}"]`).check();
    await page.getByRole('button', {name:'Save changes'}).click();
    await page.getByRole('status').filter({hasText:'Reference saved.'}).waitFor();
    const freshSession = await browser.newContext();
@@ -147,8 +154,13 @@ try {
     const freshPage = await freshSession.newPage();
     await freshPage.goto(base+'/');
     await freshPage.locator('[name="q"]').fill(rediscoveryNote);
+    await freshPage.locator('[name="project"]').selectOption(b);
     await freshPage.getByRole('button', {name:'Apply',exact:true}).click();
-    await freshPage.waitForURL(url => url.searchParams.get('q') === rediscoveryNote);
+    await freshPage.waitForURL(url => url.searchParams.get('q') === rediscoveryNote && url.searchParams.get('project') === b);
+    await freshPage.getByText('No references found.',{exact:true}).waitFor();
+    await freshPage.locator('[name="project"]').selectOption(destinationProject);
+    await freshPage.getByRole('button', {name:'Apply',exact:true}).click();
+    await freshPage.waitForURL(url => url.searchParams.get('q') === rediscoveryNote && url.searchParams.get('project') === destinationProject);
     assert.equal(await freshPage.locator('.gallery article').count(),1);
     await freshPage.getByRole('link',{name:'Lost response batch'}).click();
     await freshPage.waitForURL(url => url.pathname === savedPath);
