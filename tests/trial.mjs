@@ -166,6 +166,13 @@ try {
     await freshPage.waitForURL(url => url.pathname === savedPath);
     assert.equal(await freshPage.locator('[name="notes"]').inputValue(),rediscoveryNote);
     await freshPage.locator('.image-stack img').evaluate(image => image.decode());
+    await freshPage.getByRole('link', {name:'← All references'}).click();
+    await freshPage.waitForURL(url => url.pathname === '/' &&
+     url.searchParams.get('q') === rediscoveryNote &&
+     url.searchParams.get('project') === destinationProject);
+    assert.equal(await freshPage.locator('[name="q"]').inputValue(), rediscoveryNote);
+    assert.equal(await freshPage.locator('[name="project"]').inputValue(), destinationProject);
+    await freshPage.getByRole('link', {name:'Lost response batch', exact:true}).waitFor();
    } finally {
     await freshSession.close();
    }
