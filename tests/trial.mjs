@@ -78,7 +78,8 @@ try {
   const { chromium } = await import('playwright-core');
   const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH });
   try {
-   const page = await browser.newPage();
+   const context = await browser.newContext();
+   const page = await context.newPage();
    await page.goto(base+'/references/new');
    await page.locator('[name="title"]').fill('Recovery batch');
    await page.locator('[name="project"]').selectOption(b);
@@ -122,7 +123,7 @@ try {
    await saved.waitFor();
    const savedPath = await saved.getAttribute('href');
    assert.equal((await db.query("SELECT count(*)::int n FROM refs WHERE title='Lost response batch'")).rows[0].n,1);
-   const reopenedIntake = await page.context().newPage();
+   const reopenedIntake = await context.newPage();
    try {
     await reopenedIntake.goto(base+'/references/new');
     assert.equal(await reopenedIntake.locator('[name="screenshots"]').evaluate(input => input.files.length),0);
