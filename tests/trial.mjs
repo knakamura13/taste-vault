@@ -21,6 +21,16 @@ try {
  assert.equal((await upload('Alarm clock',a,true,true)).status,303);
  assert.equal((await upload('Duplicate',null)).status,409);
  assert.equal((await upload('General reference',null,false,true)).status,303);
+ const oldestGallery = await fetch(base+'/?sort=oldest');
+ assert.equal(oldestGallery.status,200);
+ const oldestHtml = await oldestGallery.text();
+ assert.match(oldestHtml,/>2 references</);
+ assert.deepEqual([...oldestHtml.matchAll(/<strong>([^<]+)<\/strong>/g)].map(match=>match[1]),['Alarm clock','General reference']);
+ const assignedGallery = await fetch(base+'/?project='+a);
+ assert.equal(assignedGallery.status,200);
+ const assignedHtml = await assignedGallery.text();
+ assert.match(assignedHtml,/>1 references</);
+ assert.match(assignedHtml,/<strong>Alarm clock<\/strong>/);
  const script=resolve('scripts/taste.js'); const run=(...args)=>JSON.parse(execFileSync(process.execPath,[script,...args],{cwd:temp,env,encoding:'utf8',stdio:['ignore','pipe','pipe']}));
  let scoped=run('search','--project',a); assert.deepEqual(scoped.map(x=>x.title),['General reference','Alarm clock']); assert.equal(scoped[1].images.length,2);
  assert.deepEqual(run('search','--project',b).map(x=>x.title),['General reference']);
