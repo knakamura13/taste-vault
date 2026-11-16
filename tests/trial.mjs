@@ -179,9 +179,22 @@ try {
    assert.equal(await page.locator('[name="notes"]').inputValue(),'Draft notes after failure');
    await page.getByText('Image description', {exact:true}).click();
    await page.locator('[name="description"]').fill('Draft recovery trial description');
-   await page.getByRole('button', {name:'Save description',exact:true}).click();
+   let releaseRefresh;
+   const holdRefresh = new Promise(resolve => { releaseRefresh = resolve; });
+   const refreshStarted = page.waitForRequest(request => new URL(request.url()).pathname.endsWith('/__data.json'));
+   await page.route('**/__data.json*', async route => {
+    await holdRefresh;
+    await route.continue();
+   }, {times:1});
+   try {
+    await page.getByRole('button', {name:'Save description',exact:true}).click();
+    await refreshStarted;
+    await page.locator('[name="notes"]').fill('Draft notes during refresh');
+   } finally {
+    releaseRefresh();
+   }
    await page.getByRole('status').filter({hasText:'Description saved.'}).waitFor();
-   assert.equal(await page.locator('[name="notes"]').inputValue(),'Draft notes after failure');
+   assert.equal(await page.locator('[name="notes"]').inputValue(),'Draft notes during refresh');
    assert.equal(await page.locator('[name="sourceUrl"]').inputValue(),'ftp://example.com/');
 
    // Move the reference while correcting the edit, then verify both project scopes.
