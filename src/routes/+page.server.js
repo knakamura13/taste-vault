@@ -7,9 +7,9 @@ export async function load({url}) {
  const valid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  if((project && project!=='unassigned' && !valid.test(project)) || (category && !valid.test(category))) error(400,'Invalid filter');
  const order=sort==='oldest'?'r.id ASC':sort==='title'?'r.title ASC, r.id DESC':'r.id DESC';
- // Broad searches aggregate sparse related metadata once. Filtered searches
- // can use the reference indexes to fetch metadata for fewer candidates.
- const broadSearch = Boolean(q && !project && !category);
+ // All-projects and Unassigned searches can aggregate related metadata once.
+ // Named project and category searches can narrow candidates using membership indexes.
+ const broadSearch = Boolean(q && !category && (!project || project === 'unassigned'));
  const metadataJoins = broadSearch ? `
   LEFT JOIN (
    SELECT rc.ref_id,string_agg(c.name,' ' ORDER BY rc.category_id) names
