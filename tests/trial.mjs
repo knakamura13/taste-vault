@@ -57,6 +57,9 @@ try {
   const search = await fetch(base+'/?q='+encodeURIComponent(query));
   assert.equal(search.status,200);
   assert.match(await search.text(), new RegExp('>'+count+' references<'));
+  const scopedSearch = await fetch(base+'/?'+new URLSearchParams({q:query,project:a,category}));
+  assert.equal(scopedSearch.status,200);
+  assert.match(await scopedSearch.text(),new RegExp('>'+count+' references<'));
  }
 
  assert.equal((await fetch(base+'/api/v1/references?project='+a+'&q=Approved%20phrase').then(r=>r.json())).references.length,1);
