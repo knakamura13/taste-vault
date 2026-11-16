@@ -31,12 +31,18 @@ export async function load({url}) {
  const categoryFilter = category
   ? 'AND EXISTS (SELECT 1 FROM ref_categories rc WHERE rc.ref_id=r.id AND rc.category_id=$3::uuid)'
   : "AND $3::text=''";
- const galleryQuery=`SELECT count(*) OVER()::int total,r.id,r.title,r.source_url,r.created_at,
+ const membershipFilters = `${projectFilter} ${categoryFilter}`;
+ // The first page ordered by ID can stop at 60 rows. Count the full scope
+ // separately in the same statement so the page and count share a snapshot.
+ const firstPageById = page === 1 && !q && !category && project !== 'unassigned' && sort !== 'title';
+ const total = firstPageById
+  ? `(SELECT count(*) FROM refs r WHERE r.trashed_at IS NULL ${membershipFilters})`
+  : 'count(*) OVER()';
+ const galleryQuery=`SELECT ${total}::int total,r.id,r.title,r.source_url,r.created_at,
  (SELECT id FROM screenshots s WHERE s.ref_id=r.id ORDER BY id LIMIT 1) screenshot_id
  FROM refs r ${metadataJoins} WHERE r.trashed_at IS NULL
  AND ($1='' OR strpos(lower(concat_ws(' ',r.title,r.notes,array_to_string(r.tags,' '),r.source_url,${categoryText},${descriptionText})),lower($1))>0)
- ${projectFilter}
- ${categoryFilter} ORDER BY ${order} LIMIT 60 OFFSET $4`;
+ ${membershipFilters} ORDER BY ${order} LIMIT 60 OFFSET $4`;
  const rows=await pool.query(galleryQuery,[q,project,category,(page-1)*60]);
  // A stale page can become empty after deletion or a filter change. Find the
  // last available page only on this exceptional path, then retain the filters.
