@@ -262,13 +262,16 @@ try {
    await page.getByRole('button', {name:'Copy 2 selected IDs'}).waitFor();
    const pageTwoReference = page.locator('.gallery article a').first();
    const referenceHref = await pageTwoReference.getAttribute('href');
+   const cardId = await pageTwoReference.getAttribute('id');
+   assert.match(cardId,/^REF-[0-9]+$/);
    await pageTwoReference.click();
    await page.waitForURL(new URL(referenceHref, base).href);
    await page.getByRole('link', {name:'← All references'}).click();
    await page.waitForURL(url => url.pathname === '/' &&
     url.searchParams.get('page') === '2' &&
     url.searchParams.get('q') === 'Selection trial' &&
-    url.searchParams.get('project') === b);
+    url.searchParams.get('project') === b &&
+    url.hash === '#'+cardId);
    assert.equal(await pageTwoReference.getAttribute('href'), referenceHref);
    await page.getByRole('button', {name:'Copy 2 selected IDs'}).waitFor();
    await page.getByRole('button', {name:'Clear selection'}).click();
