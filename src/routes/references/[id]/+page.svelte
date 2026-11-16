@@ -38,12 +38,20 @@
  /** @type {import('$app/forms').SubmitFunction} */
  const preserveDetails = () => {
   const referenceId = data.ref.reference_id;
-  const stillHere = () => editForm?.isConnected && data.ref.reference_id === referenceId;
   return async ({ update }) => {
-   const draft = stillHere() ? snapshot.capture() : null;
-   await update();
-   await tick();
-   if (draft && stillHere()) snapshot.restore(/** @type {[string, string][]} */ (draft));
+   const form = editForm;
+   const stillHere = () => form?.isConnected && editForm === form && data.ref.reference_id === referenceId;
+   if (!stillHere()) return update();
+   let draft = snapshot.capture();
+   const recordEdit = () => { if (stillHere()) draft = snapshot.capture(); };
+   form.addEventListener('input', recordEdit);
+   try {
+    await update();
+    await tick();
+    if (stillHere()) snapshot.restore(/** @type {[string, string][]} */ (draft));
+   } finally {
+    form.removeEventListener('input', recordEdit);
+   }
   };
  };
  let capturePending = $derived(['queued', 'running'].includes(data.ref.capture?.status));
