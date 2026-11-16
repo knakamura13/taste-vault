@@ -42,6 +42,11 @@ try {
  const upperGallery=await fetch(base+'/?project='+a.toUpperCase()+'&category='+category.toUpperCase());
  assert.equal(upperGallery.status,200);
  assert.match(await upperGallery.text(),/1 references/);
+ const unassignedGallery = await fetch(base+'/?project=unassigned');
+ assert.equal(unassignedGallery.status,200);
+ const unassignedHtml = await unassignedGallery.text();
+ assert.match(unassignedHtml,/<strong>General reference<\/strong>/);
+ assert.doesNotMatch(unassignedHtml,/<strong>Edited clock<\/strong>/);
 
  assert.equal((await fetch(base+'/api/v1/references?project='+b+'&q=motion').then(r=>r.json())).references.length,0);
  const apiRef=await (await fetch(base+'/api/v1/references/'+pin[0].id)).json(); assert.equal(apiRef.title,'Edited clock');
