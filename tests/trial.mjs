@@ -165,14 +165,37 @@ try {
     await freshPage.getByRole('link',{name:'Lost response batch'}).click();
     await freshPage.waitForURL(url => url.pathname === savedPath);
     assert.equal(await freshPage.locator('[name="notes"]').inputValue(),rediscoveryNote);
-    await freshPage.locator('.image-stack img').evaluate(image => image.decode());
+    const originalImage = freshPage.locator('.image-stack img');
+    await originalImage.evaluate(image => image.decode());
+    const originalImageUrl = await originalImage.getAttribute('src');
     await freshPage.getByRole('link', {name:'← All references'}).click();
     await freshPage.waitForURL(url => url.pathname === '/' &&
      url.searchParams.get('q') === rediscoveryNote &&
      url.searchParams.get('project') === destinationProject);
     assert.equal(await freshPage.locator('[name="q"]').inputValue(), rediscoveryNote);
     assert.equal(await freshPage.locator('[name="project"]').inputValue(), destinationProject);
-    await freshPage.getByRole('link', {name:'Lost response batch', exact:true}).waitFor();
+    const galleryResult = freshPage.getByRole('link', {name:'Lost response batch', exact:true});
+    const projectSearchUrl = freshPage.url();
+    await galleryResult.click();
+    await freshPage.waitForURL(url => url.pathname === savedPath);
+    freshPage.once('dialog', dialog => dialog.accept());
+    await freshPage.getByRole('button', {name:'Move to Trash', exact:true}).click();
+    await freshPage.waitForURL(base+'/trash');
+    const trashRow = freshPage.locator('.management-row').filter({
+     has: freshPage.getByText('Lost response batch', {exact:true})
+    });
+    await trashRow.waitFor();
+
+    await freshPage.goto(projectSearchUrl);
+    await freshPage.getByText('No references found.', {exact:true}).waitFor();
+    await freshPage.goto(base+'/trash');
+    await trashRow.getByRole('button', {name:'Restore', exact:true}).click();
+    await trashRow.waitFor({state:'hidden'});
+    await freshPage.goto(projectSearchUrl);
+    await galleryResult.click();
+    await freshPage.waitForURL(url => url.pathname === savedPath);
+    assert.equal(await originalImage.getAttribute('src'), originalImageUrl);
+    await originalImage.evaluate(image => image.decode());
    } finally {
     await freshSession.close();
    }
