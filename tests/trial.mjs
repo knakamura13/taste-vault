@@ -187,7 +187,6 @@ try {
     WITH fixtures AS (
      INSERT INTO refs(title)
      SELECT 'Selection trial ' || n FROM generate_series(1,61) n
-     ORDER BY n
      RETURNING id
     )
     INSERT INTO ref_projects(ref_id,project_id) SELECT id,$1 FROM fixtures
@@ -199,15 +198,16 @@ try {
    await page.waitForURL(url => url.searchParams.get('page') === '2');
    await page.locator('.gallery input[type="checkbox"]').first().check();
    await page.getByRole('button', {name:'Copy 2 selected IDs'}).waitFor();
-   const pageTwoReference = page.getByRole('link', {name:'Selection trial 1', exact:true});
+   const pageTwoReference = page.locator('.gallery article a').first();
+   const referenceHref = await pageTwoReference.getAttribute('href');
    await pageTwoReference.click();
-   await page.waitForURL(url => url.pathname.startsWith('/references/'));
+   await page.waitForURL(new URL(referenceHref, base).href);
    await page.getByRole('link', {name:'← All references'}).click();
    await page.waitForURL(url => url.pathname === '/' &&
     url.searchParams.get('page') === '2' &&
     url.searchParams.get('q') === 'Selection trial' &&
     url.searchParams.get('project') === b);
-   await pageTwoReference.waitFor();
+   assert.equal(await pageTwoReference.getAttribute('href'), referenceHref);
    await page.getByRole('button', {name:'Copy 2 selected IDs'}).waitFor();
    await page.getByRole('button', {name:'Clear selection'}).click();
    await db.query("DELETE FROM refs WHERE title LIKE 'Selection trial %'");
