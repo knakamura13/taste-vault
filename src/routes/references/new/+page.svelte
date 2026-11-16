@@ -1,5 +1,60 @@
 <script>
  import { enhance } from '$app/forms';
+ import { onMount } from 'svelte';
+
+ const recoveryPrefix = 'taste:intake-recovery:';
+ /** @typedef {{ id: string, startedAt: number, checking: boolean, message: string, referenceId: string }} PreviousBatch */
+ /** @type {PreviousBatch[]} */
+ let previousBatches = $state([]);
+
+ onMount(() => {
+  try {
+   previousBatches = Object.keys(localStorage)
+    .filter(key => key.startsWith(recoveryPrefix))
+    .map(key => ({
+     id: key.slice(recoveryPrefix.length),
+     startedAt: Number(localStorage.getItem(key)),
+     checking: false,
+     message: '',
+     referenceId: ''
+    }))
+    .filter(batch => /^[\da-f-]{36}$/i.test(batch.id) && Number.isFinite(batch.startedAt) && batch.startedAt > 0)
+    .sort((a,b) => b.startedAt - a.startedAt);
+  } catch {
+   // The open form can still check its receipt when browser storage is unavailable.
+  }
+ });
+
+ /** @param {string} id */
+ function rememberBatch(id) {
+  try { localStorage.setItem(recoveryPrefix + id, String(Date.now())); } catch {}
+ }
+
+ /** @param {string} id */
+ function forgetBatch(id) {
+  try { localStorage.removeItem(recoveryPrefix + id); } catch {}
+  previousBatches = previousBatches.filter(batch => batch.id !== id);
+ }
+
+ /** @param {PreviousBatch} batch */
+ async function checkPreviousBatch(batch) {
+  batch.checking = true;
+  batch.message = '';
+  try {
+   const response = await fetch('/references/new/receipt/' + batch.id);
+   if (response.ok) {
+    batch.referenceId = (await response.json()).referenceId;
+   } else if (response.status === 404) {
+    batch.message = 'No completed save found. Check again if the upload may still be finishing.';
+   } else {
+    batch.message = 'Could not check the batch. Try checking again.';
+   }
+  } catch {
+   batch.message = 'Could not check the batch. Try checking again.';
+  } finally {
+   batch.checking = false;
+  }
+ }
 
  let { data, form } = $props();
  /** @type {FileList | undefined} */ let files = $state();
@@ -44,7 +99,9 @@
    return;
   }
   receipt ||= crypto.randomUUID();
-  formData.set('receipt', receipt);
+  const submittedReceipt = receipt;
+  formData.set('receipt', submittedReceipt);
+  rememberBatch(submittedReceipt);
   uncertain = false;
   submitting = true;
   submissionError = '';
@@ -56,6 +113,7 @@
      submissionError = 'Could not confirm whether the batch saved. Check before changing the batch.';
      return;
     }
+    forgetBatch(submittedReceipt);
     await update({ reset: false });
    } finally {
     submitting = false;
@@ -75,8 +133,28 @@
 <noscript><p>With JavaScript disabled, a submission error reloads this page. Re-enter your batch and reselect any screenshots before retrying.</p></noscript>
 {#if form?.error}<p role="alert">{form.error}</p>{#if form.duplicates?.length}<ul>{#each form.duplicates as duplicate}<li><a href="/references/REF-{String(duplicate.id).padStart(6,'0')}">{duplicate.title}</a></li>{/each}</ul>{/if}{/if}
 {#if submissionError}<p role="alert">{submissionError}</p>{/if}
-{#if savedReference}<p><a href="/references/{savedReference}">Open saved batch</a></p>
+{#if savedReference}<p><a href="/references/{savedReference}" onclick={() => forgetBatch(receipt)}>Open saved batch</a></p>
 {:else if uncertain}<p><button type="button" onclick={checkReceipt} disabled={checking}>Check saved batch</button></p>{/if}
+{#if previousBatches.length}
+ <section aria-labelledby="previous-batches">
+  <h2 id="previous-batches">Previous uploads</h2>
+  <p>Check whether an earlier upload saved. To start a new upload, select your files again.</p>
+  <ul>
+   {#each previousBatches as batch (batch.id)}
+    <li>
+     <time datetime={new Date(batch.startedAt).toISOString()}>{new Date(batch.startedAt).toLocaleString()}</time>
+     {#if batch.referenceId}
+      <a href="/references/{batch.referenceId}" onclick={() => forgetBatch(batch.id)}>Open previous batch</a>
+     {:else}
+      <button type="button" onclick={() => checkPreviousBatch(batch)} disabled={batch.checking}>Check previous batch</button>
+     {/if}
+     <button type="button" onclick={() => forgetBatch(batch.id)}>Dismiss</button>
+     {#if batch.message}<p role="status">{batch.message}</p>{/if}
+    </li>
+   {/each}
+  </ul>
+ </section>
+{/if}
 <form method="POST" enctype="multipart/form-data" use:enhance={submitBatch} aria-busy={submitting}>
 <p><label>Screenshots <input type="file" name="screenshots" accept="image/png,image/jpeg,image/webp" multiple bind:files></label> (up to 20 images, 10 MB each)</p>
 {#if files?.length}<ul aria-label="Selected screenshots">{#each Array.from(files) as file (file)}<li>{file.name} ({(file.size / 1024 / 1024).toFixed(1)} MB){file.size > 10 * 1024 * 1024 ? ' — exceeds 10 MB' : ''} <button type="button" disabled={submitting} onclick={() => removeFile(file)} aria-label={'Remove '+file.name}>Remove</button></li>{/each}</ul>{/if}
