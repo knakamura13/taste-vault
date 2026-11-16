@@ -47,6 +47,9 @@ try {
  const unassignedHtml = await unassignedGallery.text();
  assert.match(unassignedHtml,/<strong>General reference<\/strong>/);
  assert.doesNotMatch(unassignedHtml,/<strong>Edited clock<\/strong>/);
+ const unassignedQuery = await fetch(base+'/?project=unassigned&q=general');
+ assert.equal(unassignedQuery.status,200);
+ assert.match(await unassignedQuery.text(),/<strong>General reference<\/strong>/);
 
  assert.equal((await fetch(base+'/api/v1/references?project='+b+'&q=motion').then(r=>r.json())).references.length,0);
  const apiRef=await (await fetch(base+'/api/v1/references/'+pin[0].id)).json(); assert.equal(apiRef.title,'Edited clock');
@@ -60,6 +63,9 @@ try {
   const scopedSearch = await fetch(base+'/?'+new URLSearchParams({q:query,project:a,category}));
   assert.equal(scopedSearch.status,200);
   assert.match(await scopedSearch.text(),new RegExp('>'+count+' references<'));
+  const unassignedSearch = await fetch(base+'/?'+new URLSearchParams({q:query,project:'unassigned'}));
+  assert.equal(unassignedSearch.status,200);
+  assert.match(await unassignedSearch.text(),/>0 references</);
  }
 
  assert.equal((await fetch(base+'/api/v1/references?project='+a+'&q=Approved%20phrase').then(r=>r.json())).references.length,1);
